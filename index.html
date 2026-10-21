@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://*.supabase.co; connect-src https://*.supabase.co; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex, nofollow">
+<meta name="color-scheme" content="light dark">
+<title>Mi cronología</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Literata:opsz,wght@7..72,400;7..72,600&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<main class="wrap" id="view-setup" hidden>
+  <header class="top"><h1>Mi cronología</h1></header>
+  <div class="card">
+    <p class="form-title">Falta conectar la base de datos</p>
+    <p class="state-text">Completá <code>config.js</code> con la dirección y la clave pública de tu proyecto de Supabase.</p>
+  </div>
+</main>
+
+<main class="wrap" id="view-login" hidden>
+  <header class="top">
+    <h1>Mi cronología</h1>
+    <p>Ingresá con tu usuario y contraseña.</p>
+  </header>
+  <section class="card" aria-labelledby="login-title">
+    <form id="login-form" novalidate>
+      <h2 class="form-title" id="login-title">Ingreso</h2>
+      <label for="l-email">Correo
+        <input type="email" id="l-email" autocomplete="username" inputmode="email" autocapitalize="none" spellcheck="false">
+      </label>
+      <label for="l-pass">Contraseña
+        <input type="password" id="l-pass" autocomplete="current-password">
+      </label>
+      <div class="btns">
+        <button type="submit" class="btn primary" id="l-go">Ingresar</button>
+        <span class="status" id="l-status" role="status" aria-live="polite"></span>
+      </div>
+    </form>
+  </section>
+</main>
+
+<div class="wrap" id="view-app" hidden>
+  <header class="top bar">
+    <div>
+      <h1>Mi cronología</h1>
+      <p>Anotá lo que pasó cuando quieras. Cada nota se ubica sola según la fecha del hecho, no la del día en que la cargás.</p>
+    </div>
+    <div class="who">
+      <span class="who-mail" id="who"></span>
+      <button type="button" class="linkbtn" id="logout">Cerrar sesión</button>
+    </div>
+  </header>
+
+  <div id="banner" class="banner" hidden></div>
+
+  <section class="card" aria-labelledby="form-title">
+    <form id="note-form" novalidate>
+      <h2 class="form-title" id="form-title">Nueva nota</h2>
+      <label for="f-title">Qué pasó
+        <input type="text" id="f-title" maxlength="140" autocomplete="off" placeholder="Ej.: Nos mudamos a la casa nueva">
+      </label>
+      <label for="f-text">Detalle <span class="hint">(opcional)</span>
+        <textarea id="f-text" maxlength="6000" placeholder="Contá cómo fue, quién estaba, qué te acordás."></textarea>
+      </label>
+      <div class="lbl" role="group" aria-labelledby="date-lbl">
+        <span id="date-lbl">Cuándo pasó <span class="hint">(solo el año es obligatorio)</span></span>
+        <div class="date-row">
+          <label for="f-day"><span class="hint">Día</span>
+            <input type="number" id="f-day" min="1" max="31" inputmode="numeric" placeholder="—">
+          </label>
+          <label for="f-month"><span class="hint">Mes</span>
+            <select id="f-month"><option value="">—</option></select>
+          </label>
+          <label for="f-year"><span class="hint">Año</span>
+            <input type="number" id="f-year" min="1000" max="2200" inputmode="numeric">
+          </label>
+        </div>
+        <span class="hint">¿No te acordás el día o el mes? Dejalos en blanco y escribí solo el año.</span>
+        <button type="button" class="linkbtn" id="f-today">Usar la fecha de hoy</button>
+      </div>
+      <div class="lbl">
+        <span>Fotos <span class="hint">(hasta 6)</span></span>
+        <div class="drop" id="drop">
+          <p class="drop-msg"><strong>Pegá una imagen con Ctrl+V</strong> (o tocá y mantené en el celular), arrastrala hasta acá o elegí archivos.</p>
+          <div class="strip" id="strip"></div>
+          <button type="button" class="btn pick" id="pick">Elegir fotos</button>
+          <input type="file" id="f-files" accept="image/*" multiple hidden>
+        </div>
+      </div>
+      <div class="btns">
+        <button type="submit" class="btn primary" id="f-save">Guardar nota</button>
+        <button type="button" class="btn" id="f-cancel" hidden>Cancelar edición</button>
+        <span class="status" id="status" role="status" aria-live="polite"></span>
+      </div>
+    </form>
+  </section>
+
+  <div class="toolbar">
+    <input type="search" id="q" class="search" placeholder="Buscar en tus notas" aria-label="Buscar en tus notas">
+    <div class="seg" role="group" aria-label="Orden">
+      <button type="button" id="o-asc" aria-pressed="true">Más antiguo primero</button>
+      <button type="button" id="o-desc" aria-pressed="false">Más reciente primero</button>
+    </div>
+    <span class="count" id="count"></span>
+  </div>
+
+  <div id="timeline"></div>
+</div>
+
+<div class="lb" id="lb" hidden role="dialog" aria-modal="true" aria-label="Foto ampliada">
+  <div class="lb-bar">
+    <span class="t" id="lb-title"></span>
+    <button type="button" class="lb-btn" id="lb-close">Cerrar</button>
+  </div>
+  <div class="lb-stage" id="lb-stage"><img id="lb-img" alt=""></div>
+  <div>
+    <div class="lb-nav">
+      <button type="button" class="lb-btn" id="lb-prev" aria-label="Foto anterior">&larr; Anterior</button>
+      <span id="lb-count"></span>
+      <button type="button" class="lb-btn" id="lb-next" aria-label="Foto siguiente">Siguiente &rarr;</button>
+    </div>
+    <p class="lb-msg" id="lb-msg"></p>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
