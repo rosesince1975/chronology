@@ -17,6 +17,7 @@ create index if not exists notes_user_date_idx on public.notes (user_id, year, m
 
 alter table public.notes enable row level security;
 revoke all on public.notes from anon;
+grant select, insert, update, delete on public.notes to authenticated;
 
 drop policy if exists "notes_select_own" on public.notes;
 drop policy if exists "notes_insert_own" on public.notes;
