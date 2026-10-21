@@ -75,7 +75,8 @@
       loading = false; render(); refreshThumbs();
     } catch (e) {
       loading = false; render();
-      banner('No se pudieron leer las notas. Revisá la conexión y recargá la página.');
+      if (window.console) console.error('Error al leer', e);
+      banner('No se pudieron leer las notas. Revisá la conexión y recargá la página.' + (e && e.message ? ' Detalle: ' + e.message : ''));
     }
   }
   function normalize(r) {
@@ -215,7 +216,8 @@
       resetForm(); setStatus('Nota guardada.', 'ok'); render(); refreshThumbs();
     } catch (err) {
       var msg = err && err.message ? String(err.message) : '';
-      setStatus(/exceeded|too large|payload|size/i.test(msg) ? 'Una foto es demasiado grande o no hay más espacio.' : 'No se pudo guardar. Revisá la conexión y probá de nuevo.', 'err');
+      if (window.console) console.error('Error al guardar', err);
+      setStatus((/exceeded|too large|payload|size/i.test(msg) ? 'Una foto es demasiado grande o no hay más espacio.' : 'No se pudo guardar. Revisá la conexión y probá de nuevo.') + (msg ? ' Detalle: ' + msg : ''), 'err');
     } finally { saving = false; $('f-save').disabled = false; }
   }
 
