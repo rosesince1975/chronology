@@ -25,8 +25,10 @@
 
   /* ---------- fechas ---------- */
   function sortKey(n) { return n.year * 10000 + (n.month || 0) * 100 + (n.day || 0); }
+  var DAYS = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+  function weekday(n) { var d = new Date(0); d.setUTCFullYear(n.year, n.month - 1, n.day); return DAYS[d.getUTCDay()]; }
   function fmtDate(n) {
-    if (n.day && n.month) return n.day + ' de ' + MONTHS[n.month - 1] + ' de ' + n.year;
+    if (n.day && n.month) return n.day + ' de ' + MONTHS[n.month - 1] + ' de ' + n.year + ' (' + weekday(n) + ')';
     if (n.month) return MONTHS[n.month - 1] + ' de ' + n.year;
     return String(n.year);
   }
