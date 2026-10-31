@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://*.supabase.co; connect-src https://*.supabase.co; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://*.supabase.co; media-src 'self' blob: https://*.supabase.co; connect-src https://*.supabase.co; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="robots" content="noindex, nofollow">
 <meta name="color-scheme" content="light dark">
 <title>Mi cronología</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Literata:opsz,wght@7..72,400;7..72,600&display=swap">
-<link rel="stylesheet" href="style.css?v=5">
+<link rel="stylesheet" href="style.css?v=6">
 </head>
 <body>
 
@@ -83,12 +83,12 @@
         <button type="button" class="linkbtn" id="f-today">Usar la fecha de hoy</button>
       </div>
       <div class="lbl">
-        <span>Fotos <span class="hint">(hasta 6)</span></span>
+        <span>Fotos y videos <span class="hint">(hasta 6; cada video hasta 50 MB)</span></span>
         <div class="drop" id="drop">
-          <p class="drop-msg"><strong>Pegá una imagen con Ctrl+V</strong> (o tocá y mantené en el celular), arrastrala hasta acá o elegí archivos.</p>
+          <p class="drop-msg"><strong>Pegá una imagen con Ctrl+V</strong> (o tocá y mantené en el celular), arrastrá fotos o videos hasta acá, o elegí archivos.</p>
           <div class="strip" id="strip"></div>
-          <button type="button" class="btn pick" id="pick">Elegir fotos</button>
-          <input type="file" id="f-files" accept="image/*" multiple hidden>
+          <button type="button" class="btn pick" id="pick">Elegir fotos o videos</button>
+          <input type="file" id="f-files" accept="image/*,video/mp4,video/quicktime,video/webm,.mov,.mp4,.m4v,.webm" multiple hidden>
         </div>
       </div>
       <div class="btns">
@@ -111,12 +111,12 @@
   <div id="timeline"></div>
 </div>
 
-<div class="lb" id="lb" hidden role="dialog" aria-modal="true" aria-label="Foto ampliada">
+<div class="lb" id="lb" hidden role="dialog" aria-modal="true" aria-label="Foto o video ampliado">
   <div class="lb-bar">
     <span class="t" id="lb-title"></span>
     <button type="button" class="lb-btn" id="lb-close">Cerrar</button>
   </div>
-  <div class="lb-stage" id="lb-stage"><img id="lb-img" alt=""></div>
+  <div class="lb-stage" id="lb-stage"><img id="lb-img" alt=""><video id="lb-video" controls playsinline preload="metadata" hidden></video></div>
   <div>
     <div class="lb-nav">
       <button type="button" class="lb-btn" id="lb-prev" aria-label="Foto anterior">&larr; Anterior</button>
@@ -128,7 +128,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
-<script src="config.js?v=5"></script>
-<script src="app.js?v=5"></script>
+<script src="config.js?v=6"></script>
+<script src="app.js?v=6"></script>
 </body>
 </html>

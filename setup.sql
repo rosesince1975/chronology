@@ -33,11 +33,11 @@ create policy "notes_update_own" on public.notes for update to authenticated
 create policy "notes_delete_own" on public.notes for delete to authenticated
   using (user_id = (select auth.uid()));
 
--- Fotos: carpeta privada, cada usuario solo toca su propia subcarpeta (nombre = id del usuario).
+-- Fotos y videos: carpeta privada, cada usuario solo toca su propia subcarpeta (nombre = id del usuario).
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
-values ('fotos', 'fotos', false, 5242880, array['image/jpeg'])
+values ('fotos', 'fotos', false, 52428800, array['image/jpeg', 'video/mp4', 'video/webm', 'video/quicktime'])
 on conflict (id) do update
-  set public = false, file_size_limit = 5242880, allowed_mime_types = array['image/jpeg'];
+  set public = false, file_size_limit = 52428800, allowed_mime_types = array['image/jpeg', 'video/mp4', 'video/webm', 'video/quicktime'];
 
 drop policy if exists "fotos_select_own" on storage.objects;
 drop policy if exists "fotos_insert_own" on storage.objects;
