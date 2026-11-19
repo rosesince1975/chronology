@@ -415,12 +415,72 @@
     $('l-pass').value = ''; $('l-go').disabled = false;
   }
 
+  /* ---------- respaldo ---------- */
+  function pad2(n) { return (n < 10 ? '0' : '') + n; }
+  async function downloadBackup() {
+    if (!uid || !window.CronoZip) return;
+    var btn = $('backup'); btn.disabled = true;
+    var d = new Date(), fname = 'mi-cronologia-respaldo-' + d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()) + '.zip';
+    var writable = null, parts = [];
+    try {
+      if (window.showSaveFilePicker) {
+        try {
+          var fh = await window.showSaveFilePicker({ suggestedName: fname, types: [{ description: 'Respaldo de Mi cronología', accept: { 'application/zip': ['.zip'] } }] });
+          writable = await fh.createWritable();
+        } catch (e) { if (e && e.name === 'AbortError') { btn.disabled = false; return; } writable = null; }
+      }
+      var sink = { write: async function (u8) { if (writable) await writable.write(u8); else parts.push(u8); } };
+      var w = new CronoZip.Writer(sink), files = [], media = 0;
+      notes.forEach(function (n) {
+        n.photos.forEach(function (p) {
+          media++;
+          files.push({ name: 'media/' + p.id + '.' + (p.kind === 'video' ? (p.ext || 'mp4') : 'jpg'), path: fpath(p) });
+          files.push({ name: 'media/' + p.id + '_t.jpg', path: tpath(p) });
+        });
+      });
+      var data = { app: 'mi-cronologia', version: 1, exportedAt: d.toISOString(), notes: notes.map(function (n) {
+        return { id: n.id, title: n.title, text: n.text, year: n.year, month: n.month, day: n.day, createdAt: n.createdAt,
+          media: n.photos.map(function (p) { return { id: p.id, kind: p.kind === 'video' ? 'video' : 'image', ext: p.kind === 'video' ? (p.ext || 'mp4') : 'jpg' }; }) };
+      }) };
+      await w.addFile('respaldo.json', new TextEncoder().encode(JSON.stringify(data, null, 1)), d);
+      banner('Preparando el respaldo… 0 de ' + files.length + ' archivos');
+      await signPaths(files.map(function (f) { return f.path; }));
+      var missing = 0;
+      for (var i = 0; i < files.length; i++) {
+        var url = cached(files[i].path), ok = false;
+        if (url) {
+          try {
+            var r = await fetch(url);
+            if (r.ok) { await w.addFile(files[i].name, new Uint8Array(await r.arrayBuffer()), d); ok = true; }
+          } catch (e) {}
+        }
+        if (!ok) missing++;
+        banner('Preparando el respaldo… ' + (i + 1) + ' de ' + files.length + ' archivos');
+      }
+      await w.finish();
+      if (writable) { await writable.close(); writable = null; }
+      else {
+        var a = document.createElement('a');
+        a.href = URL.createObjectURL(new Blob(parts, { type: 'application/zip' })); a.download = fname;
+        document.body.append(a); a.click();
+        setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 5000);
+      }
+      banner(missing ? 'Respaldo guardado, pero ' + missing + ' archivos no se pudieron incluir. Probá de nuevo.'
+        : 'Respaldo guardado: ' + span(notes.length, 'nota', 'notas') + ' y ' + span(media, 'foto o video', 'fotos y videos') + '.');
+    } catch (e) {
+      if (window.console) console.error('Error de respaldo', e);
+      if (writable) { try { await writable.abort(); } catch (e2) {} }
+      banner('No se pudo crear el respaldo.' + (e && e.message ? ' Detalle: ' + e.message : ''));
+    } finally { btn.disabled = false; }
+  }
+
   /* ---------- arranque ---------- */
   function bind() {
     MONTHS.forEach(function (m, i) { var o = h('option', null, m); o.value = i + 1; $('f-month').append(o); });
     setYearDefault(); renderStrip();
     $('login-form').addEventListener('submit', onLogin);
     $('logout').addEventListener('click', function () { sb.auth.signOut(); });
+    $('backup').addEventListener('click', downloadBackup);
     $('note-form').addEventListener('submit', onSubmit);
     $('f-cancel').addEventListener('click', function () { resetForm(); setStatus('', ''); });
     $('f-today').addEventListener('click', function () {
